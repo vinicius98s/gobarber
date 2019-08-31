@@ -1,21 +1,18 @@
-import { startOfDay, endOfDay, parseISO } from 'date-fns';
+import { startOfDay, endOfDay, parseISO, isValid } from 'date-fns';
 import { Op } from 'sequelize';
 
-import User from '../models/User';
 import Appointment from '../models/Appointment';
 
 class ScheduleController {
   async index(req, res) {
-    const checkIfUserIsProvider = await User.findOne({
-      where: { id: req.userId, provider: true },
-    });
-
-    if (!checkIfUserIsProvider)
-      return res.status(401).json({ error: 'User is not a provider.' });
-
     const { date } = req.query;
 
-    const parsedDate = parseISO(date);
+    const isValidDate = isValid(parseISO(date));
+
+    if (date && !isValidDate)
+      return res.status(400).json({ error: 'Invalid date' });
+
+    const parsedDate = isValidDate ? parseISO(date) : new Date();
 
     const appointments = await Appointment.findAll({
       where: {

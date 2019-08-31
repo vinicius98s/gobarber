@@ -8,7 +8,9 @@ import FileController from './app/controllers/FileController';
 import ProvidersController from './app/controllers/ProvidersController';
 import AppointmentController from './app/controllers/AppointmentController';
 import ScheduleController from './app/controllers/ScheduleController';
+import NotificationController from './app/controllers/NotificationController';
 
+import checkUserProvider from './app/middlewares/checkUserProvider';
 import authMiddleware from './app/middlewares/auth';
 
 const routes = new Router();
@@ -30,10 +32,19 @@ routes.post('/files', upload.single('file'), FileController.store);
 routes.get('/providers', ProvidersController.index);
 
 // Appointments
-routes.post('/appointments', AppointmentController.store);
+routes.post('/appointments', checkUserProvider, AppointmentController.store);
 routes.get('/appointments', AppointmentController.index);
+routes.delete('/appointments/:id', AppointmentController.delete);
 
 // Schedules
-routes.get('/schedule', ScheduleController.index);
+routes.get('/schedule', checkUserProvider, ScheduleController.index);
+
+// Notifications
+routes.get('/notifications', checkUserProvider, NotificationController.index);
+routes.put(
+  '/notifications/:id',
+  checkUserProvider,
+  NotificationController.update
+);
 
 export default routes;
